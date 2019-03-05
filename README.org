@@ -1,0 +1,121 @@
+#+TITLE: =julia-img-view=: Display julia plots and images inline in [[https://github.com/tpapp/julia-repl][=julia-repl=]] and/or in dedicated image buffers
+#+STARTUP: showall
+
+file:./screenshot.png
+
+This package contains a small set of tools meant to enhance the image viewing and plotting experience when using [[https://github.com/tpapp/julia-repl][=julia-repl=]] in Emacs. It contains two main tools:
+
+1. Inline display of images/plots
+
+When paired with just the right amount of Julia code (see next Section), this code extracts links to temporary files from a =julia-repl= buffer and inserts them as images inline. This gives a nice, somewhat rich Julia REPL experience in Emacs.
+
+2. Display of images/plots in dedicated plot buffers
+
+Similar to the "plot pane" feature of the [[http://junolab.org/][Juno]] editor, this package allows sending plots generated from =julia-repl= to dedicated emacs buffers with =image-mode=. One buffer is active at a time, but the user has to choice to keep multiple buffers open to view multiple plots at the same time. This gives a little bit of a Julia IDE-like experience in Emacs.
+
+* Installation
+
+This package requires at least Emacs 25 and depends on [[https://github.com/tpapp/julia-repl][=julia-repl=]]. To install, either put this in your .emacs:
+
+#+BEGIN_SRC emacs-lisp
+  (add-to-list 'load-path path-to-julia-img-view)
+  (require 'julia-img-view)
+  (julia-img-view-setup)
+#+END_SRC
+
+Or, alternative, to use [[https://github.com/jwiegley/use-package][=use-package=]], add something like this (replace load-path with your favorite repository once it is uploaded):
+
+#+BEGIN_SRC emacs-lisp
+  (use-package julia-img-view
+    :load-path path-to-julia-img-view
+    :after julia-repl
+    :config (julia-img-view-setup))
+#+END_SRC
+
+To get the Julia REPL to output the correct image URIs, add the following to your =~/.julia/config/startup.jl=:
+
+#+BEGIN_SRC julia
+  # inline images when running in emacs. See the TerminalExtensions.jl for the
+  # inspiration. The justification for making a detour to the filesystem is that
+  # given the constraints of term.el, I don't want to stream a long string of
+  # base64 data into my emacs buffer (emacs does not like long lines). A small
+  # file which is immediately deleted after emacs is done will do the trick here.
+
+  module EmacsTerm
+
+  import REPL: display
+  import Base64
+
+  struct InlineDisplay <: AbstractDisplay
+      io::IO
+  end
+  InlineDisplay() = InlineDisplay(stdout)
+
+  const eterm_mimes = ["image/png", "image/gif", "image/jpeg", "application/pdf", "application/eps"]
+
+  for mime in eterm_mimes
+      @eval begin
+          function display(d::InlineDisplay, m::MIME{Symbol($mime)}, x)
+              # write the image to a temporary file
+              filename, fio = mktemp()
+              show(fio, m, x)
+              close(fio)
+              # write a URI for emacs to the repl
+              write(d.io, "juliaimg:$(string(filename))\n")
+          end
+      end
+  end
+
+  function display(d::InlineDisplay, x)
+      for m in eterm_mimes
+          if showable(m, x)
+              return display(d, m, x)
+          end
+      end
+      throw(MethodError(display, (d, x)))
+  end
+
+  # detect whether running in emacs
+  try_emacs(_) = if occursin("eterm", ENV["TERM"]); pushdisplay(InlineDisplay()); end
+
+  end # module EmacsTerm
+
+  atreplinit(EmacsTerm.try_emacs)
+#+END_SRC
+
+(This was mostly ripped off of [[https://github.com/Keno/TerminalExtensions.jl][TerminalExtensions.jl]] and could potentially be merged into it.)
+
+* Usage
+
+The set-up function hooks into all places where it should and together with the julia code given above, inline images should just work.
+
+For  images in dedicated plot buffers, the package defines =julia-img-minor-mode=, which gives a key map for controlling the plot windows. The idea behind this package is that at any point in time, zero or more =image-mode= (in this package aliased to =julia-img-view-mode=) buffers are considered /active/. In the case that the REPL detects an image and a =julia-img-view-mode= buffer is active, it displays the image in that buffer. There can be multiple =julia-img-view-mode-buffers= if you want to open multiple images, but the only buffer updated by the REPL is the currently active one.
+
+=julia-img-view-mode= buffers are created with the command =M-x julia-img-view-create-buffer=. You can pop to the currently open buffer with =M-x julia-img-view-active-buffer=. Any =julia-img-view-mode= buffer can be marked as active by focusing on it and doing =M-x julia-img-view-mark-bufffer-active=. You can disable the plot buffers and return to the inline display of plots with =M-x julia-img-view-disable-buffers=. In =julia-img-view-minor-mode=, these commands are bound to the following keys:
+
+| *key*       | *action*                            |
+|-------------+-------------------------------------|
+| =C-x j i c= | =julia-img-view-create-buffer=      |
+| =C-x j i a= | =julia-img-view-active-buffer=      |
+| =C-x j i d= | =julia-img-view-disable-buffers=    |
+| =C-x j i m= | =julia-img-view-mark-buffer-active= |
+
+By default, the =julia-img-view-setup= function adds the minor mode to the =julia-repl-hook=, but I recommend adding it to the regular =julia-mode= (where you are editing your source files) as well:
+
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'julia-mode-hook #'julia-img-view-minor-mode)
+#+END_SRC
+
+* Discussion
+
+My hope for this project is to deliver one piece of the puzzle to building a fully-featured Julia IDE in Emacs. The idea is to combine =julia-repl=, this package, [[https://github.com/JuliaEditorSupport/julia-emacs][the official =julia-mode=]], and (hopefully) the [[https://github.com/JuliaEditorSupport/LanguageServer.jl][Julia Language Server]] for an almost-IDE experience. If we then top that off with an (not currently existing, but this should definitely be built) integration of the work on [[https://github.com/JuliaDebug/Debugger.jl][a Debugger]] and the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Debuggers.html][GUD]] and we get a full IDE.
+
+* See also
+
+[[https://github.com/Keno/TerminalExtensions.jl][TerminalExtensions.jl]] -- A method of displaying images in iTerm2. The julia part of this package (see Installation section) was ripped from this.
+
+[[https://github.com/riscy/shx-for-emacs][shx-for-emacs]] -- More generic image display in =shell-mode=. Focused on =comint=-derived modes, while this package hacks together a solution that works with =term.el= and thus the =julia-repl= package.
+
+[[https://github.com/tpapp/julia-repl][julia-repl]] -- A dependency. Julia REPL in emacs based on =term.el=
+
+[[https://github.com/dieggsy/eterm-256color][eterm-256color]] -- For a nicer experience with =term.el=, this might be useful. However, it is not necessary for the display of images.
