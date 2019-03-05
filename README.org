@@ -1,21 +1,16 @@
-#+TITLE: =julia-img-view=: Display julia plots and images inline in [[https://github.com/tpapp/julia-repl][=julia-repl=]] and/or in dedicated image buffers
+#+TITLE: julia-img-view: Display julia plots and images inline in [[https://github.com/tpapp/julia-repl][julia-repl]] and/or in dedicated image buffers
 #+STARTUP: showall
 
-file:./screenshot.png
+[[file:screenshot.png]]
 
-This package contains a small set of tools meant to enhance the image viewing and plotting experience when using [[https://github.com/tpapp/julia-repl][=julia-repl=]] in Emacs. It contains two main tools:
+This package contains a small set of tools meant to enhance the image viewing and plotting experience when using [[https://github.com/tpapp/julia-repl][julia-repl]] in Emacs. It contains two main tools:
 
-1. Inline display of images/plots
-
-When paired with just the right amount of Julia code (see next Section), this code extracts links to temporary files from a =julia-repl= buffer and inserts them as images inline. This gives a nice, somewhat rich Julia REPL experience in Emacs.
-
-2. Display of images/plots in dedicated plot buffers
-
-Similar to the "plot pane" feature of the [[http://junolab.org/][Juno]] editor, this package allows sending plots generated from =julia-repl= to dedicated emacs buffers with =image-mode=. One buffer is active at a time, but the user has to choice to keep multiple buffers open to view multiple plots at the same time. This gives a little bit of a Julia IDE-like experience in Emacs.
+1. *Inline display of images/plots:* When paired with just the right amount of Julia code (see next Section), this code extracts links to temporary files from a =julia-repl= buffer and inserts them as images inline. This gives a nice, somewhat rich Julia REPL experience in Emacs.
+2. *Display of images/plots in dedicated plot buffers:* Similar to the "plot pane" feature of the [[http://junolab.org/][Juno]] editor, this package allows sending plots generated from =julia-repl= to dedicated emacs buffers with =image-mode=. One buffer is active at a time, but the user has to choice to keep multiple buffers open to view multiple plots at the same time. This gives a little bit of a Julia IDE-like experience in Emacs.
 
 * Installation
 
-This package requires at least Emacs 25 and depends on [[https://github.com/tpapp/julia-repl][=julia-repl=]]. To install, either put this in your .emacs:
+This package requires at least Emacs 25 and depends on [[https://github.com/tpapp/julia-repl][julia-repl]]. To install, either put this in your .emacs:
 
 #+BEGIN_SRC emacs-lisp
   (add-to-list 'load-path path-to-julia-img-view)
@@ -23,7 +18,7 @@ This package requires at least Emacs 25 and depends on [[https://github.com/tpap
   (julia-img-view-setup)
 #+END_SRC
 
-Or, alternative, to use [[https://github.com/jwiegley/use-package][=use-package=]], add something like this (replace load-path with your favorite repository once it is uploaded):
+Or, alternative, to use [[https://github.com/jwiegley/use-package][use-package]], add something like this (replace load-path with your favorite repository once it is uploaded):
 
 #+BEGIN_SRC emacs-lisp
   (use-package julia-img-view
@@ -108,7 +103,7 @@ By default, the =julia-img-view-setup= function adds the minor mode to the =juli
 
 * Discussion
 
-My hope for this project is to deliver one piece of the puzzle to building a fully-featured Julia IDE in Emacs. The idea is to combine =julia-repl=, this package, [[https://github.com/JuliaEditorSupport/julia-emacs][the official =julia-mode=]], and (hopefully) the [[https://github.com/JuliaEditorSupport/LanguageServer.jl][Julia Language Server]] for an almost-IDE experience. If we then top that off with an (not currently existing, but this should definitely be built) integration of the work on [[https://github.com/JuliaDebug/Debugger.jl][a Debugger]] and the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Debuggers.html][GUD]] and we get a full IDE.
+My hope for this project is to deliver one piece of the puzzle to building a fully-featured Julia IDE in Emacs. The idea is to combine =julia-repl=, this package, [[https://github.com/JuliaEditorSupport/julia-emacs][the official julia-mode]], and (hopefully) the [[https://github.com/JuliaEditorSupport/LanguageServer.jl][Julia Language Server]] for an almost-IDE experience. If we then top that off with an (not currently existing, but this should definitely be built) integration of the work on [[https://github.com/JuliaDebug/Debugger.jl][a Debugger]] and the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Debuggers.html][GUD]] and we get a full IDE.
 
 * See also
 
