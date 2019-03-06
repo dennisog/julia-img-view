@@ -196,6 +196,15 @@ PROC is the sending process, STR is the raw string and is ignored."
     (add-hook 'julia-repl-hook #'julia-img-view--enable-advice)
     (add-hook 'julia-repl-hook #'julia-img-view-minor-mode)))
 
+(defun julia-img-view-unload ()
+  "Deactivate and remove hooks and advice."
+  (let ((repl-buf (julia-repl--live-buffer)))
+    (when (buffer-live-p repl-buf)
+      (remove-function (process-filter (get-buffer-process repl-buf))
+                       #'julia-img-view-process-output)))
+  (remove-hook 'julia-repl-hook #'julia-img-view--enable-advice)
+  (remove-hook 'julia-repl-hook #'julia-img-view-minor-mode))
+
 ;; mode definitions
 
 ;;;###autoload
