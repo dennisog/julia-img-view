@@ -11,12 +11,12 @@
 ;; the julia code given above, inline images should just work.
 ;;
 ;; For images in dedicated plot buffers, the package defines
-;; =julia-img-minor-mode=, which gives a key map for controlling the plot
+;; julia-img-minor-mode, which gives a key map for controlling the plot
 ;; windows. The idea behind this package is that at any point in time, zero or
-;; more =image-mode= (in this package aliased to =julia-img-view-mode=) buffers
-;; are considered /active/. In the case that the REPL detects an image and a
-;; =julia-img-view-mode= buffer is active, it displays the image in that
-;; buffer. There can be multiple =julia-img-view-mode-buffers= if you want to
+;; more image-mode (in this package aliased to julia-img-view-mode) buffers are
+;; considered /active/. In the case that the REPL detects an image and a
+;; julia-img-view-mode buffer is active, it displays the image in that
+;; buffer. There can be multiple julia-img-view-mode-buffers if you want to
 ;; open multiple images, but the only buffer updated by the REPL is the
 ;; currently active one.
 ;;
