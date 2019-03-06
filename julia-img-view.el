@@ -160,11 +160,9 @@ The additional arguments REPL-BUF, BEG, and END give the
                                              modification-hooks (iimage-modification-hook))))))
 
 (defun julia-img-view--process-output (proc str)
-  "Addition to the `term.el' process filter that extracts image URIs.
+  "Addition to julia's process filter that extracts image URIs.
 
 PROC is the sending process, STR is the raw string and is ignored."
-  ;; do some pre-filtering to not run the regexp for every (including
-  ;; non-julia) term buffer.
   (let ((repl-buf (julia-repl--live-buffer)) (file))
     (when (and repl-buf (eq (get-buffer-process repl-buf) proc))
       (with-current-buffer repl-buf
@@ -185,9 +183,10 @@ PROC is the sending process, STR is the raw string and is ignored."
         (setq julia-img-view--last-point (point))))))
 
 (defun julia-img-view--enable-advice ()
-  "Advise `term-emulate-terminal' with some `julia-img-view' specific code."
+  "Advise the process filter of the `julia-repl' process."
   (defvar-local julia-img-view--last-point 0)
-  (advice-add #'term-emulate-terminal :after #'julia-img-view--process-output))
+  (add-function :after (process-filter (get-buffer-process (julia-repl--live-buffer)))
+                #'julia-img-view--process-output))
 
 ;;;###autoload
 (defun julia-img-view-setup ()
