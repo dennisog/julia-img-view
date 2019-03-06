@@ -13,7 +13,7 @@
 ;; For images in dedicated plot buffers, the package defines
 ;; julia-img-minor-mode, which gives a key map for controlling the plot
 ;; windows. The idea behind this package is that at any point in time, zero or
-;; more image-mode (in this package aliased to julia-img-view-mode) buffers are
+;; one image-mode (in this package aliased to julia-img-view-mode) buffers is
 ;; considered /active/. In the case that the REPL detects an image and a
 ;; julia-img-view-mode buffer is active, it displays the image in that
 ;; buffer. There can be multiple julia-img-view-mode-buffers if you want to
