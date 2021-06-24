@@ -56,6 +56,15 @@
 (require 'button)
 (require 'julia-repl)
 
+;; get repl--live (function no longer available?)
+(defun julia-repl--live-buffer ()
+  "Return the inferior buffer if it has a running REPL, otherwise NIL."
+  (if-let ((inferior-buffer
+            (get-buffer (julia-repl--add-earmuffs
+                         (julia-repl--inferior-buffer-name)))))
+      (when (term-check-proc inferior-buffer)
+        inferior-buffer)))
+
 ;; customizations, constants, and variables
 
 (defgroup julia-img-view nil
